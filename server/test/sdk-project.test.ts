@@ -101,8 +101,8 @@ test('unsaved catalogs drive preview, all-locale collision checks and edit befor
       assert.ok(p.keys.has('remoteOnly')); assert.ok(!p.keys.has('onlyFrench'));
       await assert.rejects(p.planInsert('remoteOnly', 'Collision'), /exist|collision/i);
       const changes = await p.planRename('greeting', 'salutation');
-      assert.equal(changes.find(c => c.path.endsWith('/en.json'))!.before, en);
-      assert.equal(changes.find(c => c.path.endsWith('/fr.json'))!.before, fr);
+      assert.equal(changes.find(c => c.path === path.join(f.root, 'messages/en.json'))!.before, en);
+      assert.equal(changes.find(c => c.path === path.join(f.root, 'messages/fr.json'))!.before, fr);
     } finally { await p.close(); }
     await assert.rejects(async () => { const invalid = await openSdkProject(f.project, new Map([[path.join(f.root, 'messages/en.json'), '{ broken']])); await invalid.close(); }, /JSON|import|catalog/i);
   } finally { await f.cleanup(); }
@@ -153,8 +153,8 @@ test('rename preserves every locale, complex variants and metadata; rejects coll
       await assert.rejects(p.planRename('greeting', 'onlyFrench'), /exist|collision/i);
       const changes = await p.planRename('greeting', 'renamed');
       assert.equal(changes.length, 2);
-      const en = JSON.parse(changes.find(c => c.path.endsWith('/en.json'))!.after);
-      const fr = JSON.parse(changes.find(c => c.path.endsWith('/fr.json'))!.after);
+      const en = JSON.parse(changes.find(c => c.path === path.join(f.root, 'messages/en.json'))!.after);
+      const fr = JSON.parse(changes.find(c => c.path === path.join(f.root, 'messages/fr.json'))!.after);
       assert.equal(en.greeting, undefined); assert.deepEqual(en.renamed, complex);
       assert.equal(en.$schema, 'https://inlang.com/schema/inlang-message-format');
       assert.equal(en.untouched, 'Stay'); assert.equal(fr.renamed, 'Bonjour {count}');
