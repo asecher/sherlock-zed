@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile, readFile, rm, symlink } from 'node:fs/promises';
-import { join } from 'node:path';
+import { join, basename } from 'node:path';
 import { homedir } from 'node:os';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
@@ -32,7 +32,7 @@ test('packages a root-level runtime tree, manifest and matching checksum without
     execFileSync('tar', ['-xzf', result.archive, '-C', dest]);
     assert.deepEqual(JSON.parse(await readFile(join(dest, 'release.json'), 'utf8')), { format: 1, name: 'sherlock-language-server', version: '0.1.0', os: process.platform, arch: process.arch, nodeMajor: 24, entrypoint: 'server/dist/main.js' });
     const hash = createHash('sha256').update(await readFile(result.archive)).digest('hex');
-    assert.equal(await readFile(result.archive + '.sha256', 'utf8'), `${hash}  ${result.archive.split('/').at(-1)}\n`);
+    assert.equal(await readFile(result.archive + '.sha256', 'utf8'), `${hash}  ${basename(result.archive)}\n`);
   } finally { await rm(f.root, { recursive: true, force: true }); }
 });
 
