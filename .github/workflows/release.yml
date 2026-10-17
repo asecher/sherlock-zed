@@ -1,0 +1,98 @@
+name: Build release archives
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  archive:
+    name: Archive ${{ matrix.target }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            target: darwin-arm64
+          - runner: macos-15-intel
+            target: darwin-x64
+          - runner: ubuntu-24.04
+            target: linux-x64
+          - runner: ubuntu-24.04-arm
+            target: linux-arm64
+          - runner: windows-2025
+            target: win32-x64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    env:
+      SHERLOCK_TEST_FIXTURES_ONLY: '1'
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Check platform and tagged version
+        env:
+          EXPECTED_TARGET: ${{ matrix.target }}
+          REF_TYPE: ${{ github.ref_type }}
+          REF_NAME: ${{ github.ref_name }}
+        run: node scripts/check-release.mjs
+      - run: npm ci --ignore-scripts
+      - run: npm test
+      - run: npm run typecheck
+      - run: npm run test:release
+      - run: npm run release:build
+      - name: Exercise packaged server outside the checkout
+        run: node scripts/smoke-release.mjs
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: server-${{ matrix.target }}
+          path: |
+            release/*.tar.gz
+            release/*.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 14
+
+  draft-release:
+    if: github.ref_type == 'tag' && github.repository == 'asecher/sherlock-zed'
+    needs: archive
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: server-*
+          merge-multiple: true
+          path: release
+      - name: Create or update a draft only
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          if ! [[ "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            printf '%s\n' 'Expected a stable vMAJOR.MINOR.PATCH tag' >&2
+            exit 1
+          fi
+          assets=(release/*.tar.gz release/*.tar.gz.sha256)
+          if [[ ${#assets[@]} -ne 10 ]]; then
+            printf '%s\n' 'Expected five archives and five checksums' >&2
+            exit 1
+          fi
+          if gh release view "$RELEASE_TAG" --json isDraft > release-state.json 2>/dev/null; then
+            node -e 'if (!JSON.parse(require("fs").readFileSync("release-state.json")).isDraft) process.exit(1)'
+          else
+            gh release create "$RELEASE_TAG" --verify-tag --draft --title "Sherlock $RELEASE_TAG" --notes 'Platform-specific Node LSP archives. Review the build results and publish this draft manually to enable automatic installation.'
+          fi
+          gh release upload "$RELEASE_TAG" "${assets[@]}" --clobber

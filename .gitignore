@@ -1,0 +1,7 @@
+node_modules/
+target/
+server/dist/
+.DS_Store
+release/
+extension.wasm
+examples-apps/

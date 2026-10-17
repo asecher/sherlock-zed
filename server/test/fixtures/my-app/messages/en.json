@@ -1,0 +1,8 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "welcome": "Welcome",
+  "greeting": "Hello {name}!",
+  "toto": "TAtaa",
+  "left_zesty_termite_conquer": "ff",
+  "few_early_kangaroo_endure": "        Welcome to\n"
+}

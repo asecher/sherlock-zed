@@ -1,0 +1,6 @@
+{
+  "$schema": "https://inlang.com/schema/inlang-message-format",
+  "welcome": "Bienvenue",
+  "greeting": "Bonjour {name} !",
+  "toto": "TAtaa"
+}
