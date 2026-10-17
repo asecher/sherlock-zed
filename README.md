@@ -2,7 +2,7 @@
 
 Extension de développement ciblée : aperçu de la langue source au survol d’une clé Paraglide, extraction d’un texte vers inlang, et renommage coordonné des références statiques.
 
-**État : survol et extraction confirmés fonctionnels dans Zed par l’utilisateur.** Les tests automatisés du serveur et du composant restent distincts de cette validation utilisateur. L’installation autonome par archive fait l’objet d’une nouvelle validation ; aucune release distante n’est encore publiée.
+**État : survol et extraction confirmés fonctionnels dans Zed par l’utilisateur.** Les tests automatisés du serveur et du composant restent distincts de cette validation utilisateur. Les archives des cinq plateformes ont été construites et validées en CI ; la release `v0.1.0` est préparée en **brouillon**, pas publiée. L’installation autonome doit encore être essayée dans Zed après publication.
 
 ## Architecture retenue
 
@@ -52,6 +52,7 @@ Pour cette première tranche :
 
 ## Documents
 
+- [État du tag et du brouillon distant v0.1.0](docs/RELEASE-PUBLICATION.md)
 - [Archives de release et installation autonome](docs/RELEASE.md)
 - [Vérification du packaging et de l’installateur](docs/RELEASE-VERIFICATION.md)
 - [Architecture et garanties](docs/ARCHITECTURE.md)

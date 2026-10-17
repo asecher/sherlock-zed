@@ -34,4 +34,4 @@ L’accord sur le SDK remplace l’orientation provisoire de lecture JSON direct
 
 ## Avant publication
 
-Le dépôt et le format archive sont décidés. La licence du nouveau code, les métadonnées de publication et l’autorisation de pousser/publier restent à confirmer. Le workflow prépare une release brouillon seulement ; aucun push, upload ou publication n’a été effectué. Voir `docs/RELEASE.md`.
+Le dépôt et le format archive sont décidés. L’utilisateur a autorisé le push des sources et la préparation du brouillon `v0.1.0` : sources/tag distants et dix assets du brouillon sont vérifiés. La publication publique et la licence du nouveau code restent à décider. Voir `docs/RELEASE-PUBLICATION.md` et `docs/RELEASE.md`.
