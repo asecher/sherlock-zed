@@ -5,3 +5,8 @@ server/dist/
 release/
 extension.wasm
 examples-apps/
+
+# Local planning, documentation and experiments
+/docs/
+/spikes/
+/IDEA.md
